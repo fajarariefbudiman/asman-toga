@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"asman-toga/config"
+	"asman-toga/controllers"
 	"asman-toga/models"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,12 @@ func JWTAuth() gin.HandlerFunc {
 			}
 			return jwtSecret, nil
 		})
+
+		if controllers.IsBlacklisted(tokenString) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token sudah logout"})
+			c.Abort()
+			return
+		}
 
 		if err != nil {
 			fmt.Printf("JWT Parse Error: %v\n", err)

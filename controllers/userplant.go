@@ -103,7 +103,7 @@ func ApproveUserPlant(c *gin.Context) {
 func CreateUserPlant(c *gin.Context) {
 	userIDVal, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID tidak ditemukan di konteks"})
 		return
 	}
 
@@ -111,14 +111,14 @@ func CreateUserPlant(c *gin.Context) {
 	if !ok {
 		userIDStr, strOk := userIDVal.(string)
 		if !strOk {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type in context"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Tipe User ID tidak valid di konteks"})
 			return
 		}
 
 		var err error
 		userID, err = uuid.Parse(userIDStr)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse user ID"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengubah User ID"})
 			return
 		}
 	}
@@ -132,13 +132,13 @@ func CreateUserPlant(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid", "detail": err.Error()})
 		return
 	}
 
 	var plant models.Plant
 	if err := config.DB.First(&plant, input.PlantID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Plant not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Tanaman tidak ditemukan"})
 		return
 	}
 
@@ -154,14 +154,14 @@ func CreateUserPlant(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&userPlant).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal tambah userplant", "details": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menambahkan tanaman pengguna", "detail": err.Error()})
 		return
 	}
 
 	config.DB.Preload("Plant").Preload("User").First(&userPlant, userPlant.ID)
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message":   "UserPlant berhasil dibuat, menunggu persetujuan admin",
+		"message":   "Tanaman berhasil ditambahkan, menunggu persetujuan admin",
 		"userplant": userPlant,
 	})
 }
@@ -169,21 +169,21 @@ func CreateUserPlant(c *gin.Context) {
 func UpdateUserPlant(c *gin.Context) {
 	userIDVal, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID tidak ditemukan di konteks"})
 		return
 	}
 	userID, ok := userIDVal.(uuid.UUID)
 	if !ok {
 		userIDStr, strOk := userIDVal.(string)
 		if !strOk {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type in context"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Tipe User ID tidak valid di konteks"})
 			return
 		}
 
 		var err error
 		userID, err = uuid.Parse(userIDStr)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse user ID"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengubah User ID"})
 			return
 		}
 	}
@@ -197,7 +197,7 @@ func UpdateUserPlant(c *gin.Context) {
 
 	var userPlant models.UserPlant
 	if err := config.DB.First(&userPlant, "id = ? AND user_id = ?", uid, userID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "UserPlant tidak ditemukan"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tanaman pengguna tidak ditemukan"})
 		return
 	}
 
@@ -209,7 +209,7 @@ func UpdateUserPlant(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid", "detail": err.Error()})
 		return
 	}
 
@@ -229,13 +229,13 @@ func UpdateUserPlant(c *gin.Context) {
 	userPlant.Status = "pending"
 
 	if err := config.DB.Save(&userPlant).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal update userplant"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal memperbarui tanaman pengguna"})
 		return
 	}
 	config.DB.Preload("Plant").Preload("User").First(&userPlant, userPlant.ID)
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":   "UserPlant berhasil diperbarui, menunggu persetujuan admin",
+		"message":   "Tanaman berhasil diperbarui, menunggu persetujuan admin",
 		"userplant": userPlant,
 	})
 }
