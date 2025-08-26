@@ -43,6 +43,7 @@ func Register(c *gin.Context) {
 		Email           string `json:"email" binding:"required,email"`
 		Password        string `json:"password" binding:"required,min=6"`
 		ConfirmPassword string `json:"confirm_password" binding:"required"`
+		BanjarId        int    `json:"banjar_id" binding:"required"`
 		Role            string `json:"role" binding:"omitempty,oneof=admin user"`
 	}
 
@@ -83,6 +84,7 @@ func Register(c *gin.Context) {
 		Name:     req.Name,
 		Email:    strings.ToLower(req.Email),
 		Password: string(hashed),
+		BanjarID: req.BanjarId,
 		Role:     req.Role,
 	}
 
@@ -184,15 +186,16 @@ func Login(c *gin.Context) {
 var blacklistedTokens = make(map[string]time.Time)
 
 func Logout(c *gin.Context) {
-	tokenString := c.GetHeader("Authorization")
-	if tokenString == "" {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Token tidak ditemukan"})
 		return
 	}
 
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	blacklistedTokens[tokenString] = time.Now().Add(24 * time.Hour)
 
-	c.JSON(http.StatusOK, gin.H{"message": "Logout berhasil, token diblacklist"})
+	c.JSON(http.StatusOK, gin.H{"message": "Logout berhasil"})
 }
 
 func IsBlacklisted(token string) bool {

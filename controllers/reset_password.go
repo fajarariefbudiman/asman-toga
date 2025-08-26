@@ -29,14 +29,33 @@ func ForgotPassword(c *gin.Context) {
 		return
 	}
 
+	// otp := fmt.Sprintf("%06d", rand.Intn(1000000))
+	// reset := models.ResetPassword{
+	// 	ID:        uuid.New(),
+	// 	Email:     req.Email,
+	// 	OTP:       otp,
+	// 	ExpiresAt: time.Now().Add(10 * time.Minute),
+	// }
+	// config.DB.Create(&reset)
+	var reset models.ResetPassword
+
 	otp := fmt.Sprintf("%06d", rand.Intn(1000000))
-	reset := models.ResetPassword{
-		ID:        uuid.New(),
-		Email:     req.Email,
-		OTP:       otp,
-		ExpiresAt: time.Now().Add(10 * time.Minute),
+
+	if err := config.DB.Where("email = ?", req.Email).First(&reset).Error; err == nil {
+		// update OTP lama
+		reset.OTP = otp
+		reset.ExpiresAt = time.Now().Add(10 * time.Minute)
+		config.DB.Save(&reset)
+	} else {
+		// kalau belum ada, bikin baru
+		reset = models.ResetPassword{
+			ID:        uuid.New(),
+			Email:     req.Email,
+			OTP:       otp,
+			ExpiresAt: time.Now().Add(10 * time.Minute),
+		}
+		config.DB.Create(&reset)
 	}
-	config.DB.Create(&reset)
 
 	go utils.SendEmail(req.Email, "Reset Password OTP", "Kode OTP kamu: "+otp)
 

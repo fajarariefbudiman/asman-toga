@@ -13,7 +13,7 @@ func SendEmail(to, subject, otp string) error {
 	host := os.Getenv("MAIL_HOST")
 	port := os.Getenv("MAIL_PORT")
 
-	logoURL := os.Getenv("APP_URL") + "/logo.png"
+	// logoURL := os.Getenv("APP_URL") + "/logo.png"
 
 	body := fmt.Sprintf(`
 	<!DOCTYPE html>
@@ -69,7 +69,7 @@ func SendEmail(to, subject, otp string) error {
 	</head>
 	<body>
 		<div class="container">
-			<img src="%s" class="logo" alt="Logo">
+			<img src="./public/logo.png" class="logo" alt="Logo">
 			<h2>Kode OTP Reset Password</h2>
 			<p>Gunakan kode OTP berikut untuk reset password akunmu:</p>
 			<div class="otp">%s</div>
@@ -81,7 +81,7 @@ func SendEmail(to, subject, otp string) error {
 		</div>
 	</body>
 	</html>
-`, logoURL, otp, 2025, fromName)
+`, otp, 2025, fromName)
 
 	msg := "MIME-Version: 1.0\r\n" +
 		"Content-Type: text/html; charset=UTF-8\r\n" +

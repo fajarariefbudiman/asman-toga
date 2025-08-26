@@ -14,6 +14,8 @@ func SetupRouter() *gin.Engine {
 		c.JSON(200, gin.H{"message": "Asman Toga API running "})
 	})
 
+	r.Static("/static", "./public")
+
 	api := r.Group("/api/v1")
 	{
 		api.POST("/register", controllers.Register)
@@ -27,6 +29,8 @@ func SetupRouter() *gin.Engine {
 		api.GET("/userplants/:id", controllers.GetUserPlantByID)
 		api.GET("/userplants/by-plant/:plant_id", controllers.GetUserPlantByPlants)
 
+		api.GET("/all-banjar", controllers.GetAllBanjar)
+
 		auth := api.Group("/")
 		auth.Use(middleware.JWTAuth())
 		{
@@ -35,7 +39,7 @@ func SetupRouter() *gin.Engine {
 
 			auth.POST("/userplants", controllers.CreateUserPlant)
 			auth.PUT("/userplants/:id", controllers.UpdateUserPlant)
-			// auth.DELETE("/:id", controllers.DeleteUserPlant)
+			auth.DELETE("/logout/:id", controllers.Logout)
 
 			auth.PUT("/:id/approve", controllers.ApproveUserPlant)
 		}

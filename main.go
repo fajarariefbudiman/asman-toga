@@ -6,6 +6,7 @@ import (
 	"asman-toga/router"
 	"asman-toga/seeders"
 	"fmt"
+	"log"
 
 	"github.com/joho/godotenv"
 )
@@ -18,7 +19,18 @@ func main() {
 
 	config.ConnectDatabase()
 
-	config.DB.AutoMigrate(&models.User{}, &models.Plant{}, &models.UserPlant{})
+	// config.DB.AutoMigrate(&models.User{}, &models.Plant{}, &models.UserPlant{}, &models.Banjar{}, &models.ResetPassword{})
+	error := config.DB.AutoMigrate(
+		&models.User{},
+		&models.Plant{},
+		&models.UserPlant{},
+		&models.Banjar{},
+		&models.ResetPassword{},
+	)
+	if error != nil {
+		log.Fatal("AutoMigrate gagal:", error)
+	}
+
 	seeders.SeedPlants()
 	seeders.SeedBanjar()
 	r := router.SetupRouter()

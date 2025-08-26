@@ -69,6 +69,7 @@ func GetUserPlantByPlants(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
 func GetUserPlantByID(c *gin.Context) {
 	id := c.Param("id")
 	uid, err := uuid.Parse(id)

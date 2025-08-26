@@ -26,18 +26,17 @@ func JWTAuth() gin.HandlerFunc {
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if controllers.IsBlacklisted(tokenString) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token sudah logout"})
+			c.Abort()
+			return
+		}
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 			return jwtSecret, nil
 		})
-
-		if controllers.IsBlacklisted(tokenString) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token sudah logout"})
-			c.Abort()
-			return
-		}
 
 		if err != nil {
 			fmt.Printf("JWT Parse Error: %v\n", err)
