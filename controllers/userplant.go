@@ -39,6 +39,36 @@ func GetUserPlants(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func GetUserPlantByPlants(c *gin.Context) {
+	id := c.Param("plant_id")
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	var userPlant models.UserPlant
+	if err := config.DB.Preload("User").Preload("Plant").First(&userPlant, "plant_id = ?", uid).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "UserPlant tidak ditemukan"})
+		return
+	}
+
+	response := gin.H{
+		"id":       userPlant.ID,
+		"user_id":  userPlant.UserID,
+		"plant_id": userPlant.PlantID,
+		"address":  userPlant.Address,
+		"status":   userPlant.Status,
+		"user":     userPlant.User,
+		"plant":    userPlant.Plant,
+	}
+
+	if userPlant.Status == "pending" {
+		response["message"] = "Masih menunggu approval admin"
+	}
+
+	c.JSON(http.StatusOK, response)
+}
 func GetUserPlantByID(c *gin.Context) {
 	id := c.Param("id")
 	uid, err := uuid.Parse(id)

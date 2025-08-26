@@ -20,6 +20,7 @@ func main() {
 
 	config.DB.AutoMigrate(&models.User{}, &models.Plant{}, &models.UserPlant{})
 	seeders.SeedPlants()
+	seeders.SeedBanjar()
 	r := router.SetupRouter()
 
 	r.Run(":8080")

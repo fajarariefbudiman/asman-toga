@@ -12,7 +12,7 @@ func GetProfile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 
 	var user models.User
-	if err := config.DB.First(&user, "id = ?", userID).Error; err != nil {
+	if err := config.DB.Preload("Banjar").First(&user, "id = ?", userID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User tidak ditemukan"})
 		return
 	}
