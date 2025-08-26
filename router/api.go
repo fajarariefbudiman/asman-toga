@@ -25,7 +25,7 @@ func SetupRouter() *gin.Engine {
 		api.GET("/plants/:slug", controllers.GetPlantBySlug)
 		api.GET("/userplants", controllers.GetUserPlants)
 		api.GET("/userplants/:id", controllers.GetUserPlantByID)
-		api.GET("/userplants/:plant_id", controllers.GetUserPlantByPlants)
+		api.GET("/userplants/by-plant/:plant_id", controllers.GetUserPlantByPlants)
 
 		auth := api.Group("/")
 		auth.Use(middleware.JWTAuth())
